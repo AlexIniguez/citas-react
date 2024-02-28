@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Error from "./Error";
 
-const Formulario = ({pacientes, setPacientes}) => {
+const Formulario = ({pacientes, setPacientes, paciente, setPaciente}) => {
     const [nombre, setNombre] = useState('');
     const [propietario, setPropietario] = useState('');
     const [email, setEmail] = useState('');
@@ -9,6 +9,17 @@ const Formulario = ({pacientes, setPacientes}) => {
     const [sintomas, setSintomas] = useState('');
 
     const [error, setError] = useState(false);
+
+    useEffect(() => {
+      if(Object.keys(paciente).length > 0 ){ //comprobando si el objeto esta vacio
+        //mandando al formulario el objeto
+          setNombre(paciente.nombre)
+          setPropietario(paciente.propietario)
+          setEmail(paciente.email)
+          setFecha(paciente.fecha)
+          setSintomas(paciente.sintomas)
+      }
+    }, [paciente])
 
     const generarId = () =>{
       const random = Math.random().toString(36).substring(2);
@@ -31,18 +42,35 @@ const Formulario = ({pacientes, setPacientes}) => {
 
       //objeto de paciente
 
-      const objetPaciente= {
+      const objetoPaciente= {
         nombre, 
         propietario, 
         email, 
         fecha, 
         sintomas,
-        id: generarId()
       }
-      console.log(objetPaciente)
 
-      //setPacientes(nombre)
-      setPacientes([...pacientes, objetPaciente]);
+      if(paciente.id){
+        //editando el registro
+        //console.log('editando...')
+        objetoPaciente.id = paciente.id
+        // console.log(objetoPaciente) //paciente actualizado
+        // console.log(paciente) //paciente anterior al presioanr editar
+        const pacientesActualizados = pacientes.map(pacienteState => pacienteState.id === 
+          paciente.id ? objetoPaciente : pacienteState)
+
+          setPacientes(pacientesActualizados)
+          setPaciente({})//regresandolo a un objeto para limpiarlo en memoria 
+
+      }else {
+        //nuevo registro
+        //console.log('Nuevo registro')
+        objetoPaciente.id = generarId()
+        setPacientes([...pacientes, objetoPaciente]);
+      }
+      console.log(objetoPaciente)
+
+
       //reiniciar el form
       setNombre('')
       setPropietario('')
@@ -139,7 +167,7 @@ const Formulario = ({pacientes, setPacientes}) => {
         type="submit"
         className="bg-indigo-600 w-full p-3 text-white uppercase font-bold 
         hover:bg-indigo-700 cursor-pointer transition-all rounded-2xl"
-        value="Agregar Paciente"
+        value={paciente.id ? 'Editar paciente' : 'Agregar Paciente'}
         />
       </form>
     </div>
